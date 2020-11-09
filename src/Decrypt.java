@@ -18,23 +18,20 @@ public class Decrypt {
      */
     protected static final int TAMANHO_LL = 4;
 
-    public static boolean obterArquivoRetorno(WSWEBTAProxy ws, WSSessaoTO wssessaoto) {
-
-        boolean existemArquivosParaReceber = true;
-        FileOutputStream fos = null;
-        long offSet = 0;
-        int numeroArquivo = 0;
-        byte[] ll = new byte[4];
+    public static boolean obterArquivoRetorno(boolean existemArquivosParaReceber, WSWEBTAProxy ws,
+            WSSessaoTO wssessaoto) {
 
         try {
+            FileOutputStream fos = null;
+            long offSet = 0;
+            int numeroArquivo = 0;
+            byte[] ll = new byte[4];
 
             WSRetornoExTO ret = ws.obterBlocoRetornoEx(wssessaoto.getCTRL(), numeroArquivo, offSet, 8192);
 
             numeroArquivo = ret.getNumeroArquivo();
 
-            System.out.println(ret.isFlagArquivoCriptografado());
-
-            System.out.println(numeroArquivo);
+            System.out.println("número " + numeroArquivo);
             if (numeroArquivo > 0) {
                 if (offSet == 0) {
                     fos = new FileOutputStream(ret.getNomeLogicoArquivo());
@@ -88,6 +85,8 @@ public class Decrypt {
             // Obtem id do cliente
             String idClienteTransAutom = WEBTACryptoUtil.getIdFromDecodedFileKey(transfFileKey);
 
+            System.out.println("id Cliente- " + idClienteTransAutom);
+
             // Obtem chave de criptografia do desafio
             byte[] transfKey = WEBTACryptoUtil.getKeyFromDecodedFileKey(transfFileKey);
 
@@ -104,7 +103,11 @@ public class Decrypt {
              * --------------------------
              */
 
-            boolean existemArquivosParaReceber = Decrypt.obterArquivoRetorno(ws, wssessaoto);
+            boolean existemArquivosParaReceber = true;
+
+            while (existemArquivosParaReceber) {
+                existemArquivosParaReceber = Decrypt.obterArquivoRetorno(existemArquivosParaReceber, ws, wssessaoto);
+            }
 
             System.out.println("existemArquivosParaReceber " + existemArquivosParaReceber);
 
